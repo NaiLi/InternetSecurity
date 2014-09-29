@@ -12,10 +12,10 @@ public class SecureAdditionServer {
 	private int port;
 	// This is not a reserved port number
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "jpatkeystore.ks";
-	static final String TRUSTSTORE = "jpattruststore.ks";
-	static final String STOREPASSWD = "changeit";
-	static final String ALIASPASSWD = "changeit";
+	static final String KEYSTORE = "linuskeystore.ks";
+	static final String TRUSTSTORE = "linustruststore.ks";
+	static final String STOREPASSWD = "linuss";
+	static final String ALIASPASSWD = "linuss";
 	
 	/** Constructor
 	 * @param port The port where the server
@@ -39,15 +39,15 @@ public class SecureAdditionServer {
 			
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance( "SunX509" );
 			tmf.init( ts );
-			
-			SSLContext sslContext = SSLContext.getInstance( "TLS" );
-			sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
-			SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
-			SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket( port );
-			sss.setEnabledCipherSuites( sss.getSupportedCipherSuites() );
-			
-			System.out.println("\n>>>> SecureAdditionServer: active ");
-			SSLSocket incoming = (SSLSocket)sss.accept();
+
+            SSLContext sslContext = SSLContext.getInstance( "TLS" );
+            sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
+            SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
+            SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket( port );
+            sss.setEnabledCipherSuites( sss.getSupportedCipherSuites() );
+            sss.setNeedClientAuth(true);
+            System.out.println("\n>>>> SecureAdditionServer: active ");
+            SSLSocket incoming = (SSLSocket)sss.accept();
 
       BufferedReader in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
 			PrintWriter out = new PrintWriter( incoming.getOutputStream(), true );			
