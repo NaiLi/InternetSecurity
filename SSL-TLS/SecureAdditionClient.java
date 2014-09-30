@@ -14,7 +14,8 @@ public class SecureAdditionClient {
 	static final String TRUSTSTORE = "linneatruststore.ks";
 	static final String STOREPASSWD = "linnea";
 	static final String ALIASPASSWD = "linnea";
-  
+	
+	String option, filename; 
 	
 	// Constructor @param host Internet address of the host where the server is located
 	// @param port Port number on the host where the server is listening
@@ -45,15 +46,18 @@ public class SecureAdditionClient {
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
+			displayMenu();
 			
 			BufferedReader socketIn;
 			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
 			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
 			
-			String numbers = "1.2 3.4 5.6";
+			String numbers = option; //"1.2 3.4 5.6";
 			System.out.println( ">>>> Sending the numbers " + numbers+ " to SecureAdditionServer" );
-			socketOut.println( numbers );
+			socketOut.println(option); //+ filename);
+			socketOut.println(filename);
 			System.out.println( socketIn.readLine() );
+			//System.out.println( socketIn.readLine() );
 
 			socketOut.println ( "" );
 		}
@@ -63,6 +67,21 @@ public class SecureAdditionClient {
 		}
 	}
 	
+	private void displayMenu() throws IOException {
+		
+		System.out.println("Select an option:");
+		System.out.println("1. Download file");
+		System.out.println("2. Upload file");
+		System.out.println("3. Delete file");
+		System.out.println("4. Quit");
+		System.out.println("Enter option: ");
+		
+		BufferedReader optionIn = new BufferedReader(new InputStreamReader(System.in));
+		option = optionIn.readLine();
+		System.out.println("Enter filename");
+		filename = optionIn.readLine();
+		System.out.println(option + " " + filename);
+	}
 	
 	// The test method for the class @param args Optional port number and host name
 	public static void main( String[] args ) {

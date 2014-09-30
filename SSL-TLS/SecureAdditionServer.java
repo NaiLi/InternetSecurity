@@ -17,6 +17,8 @@ public class SecureAdditionServer {
 	static final String STOREPASSWD = "linuss";
 	static final String ALIASPASSWD = "linuss";
 	
+	private String file1 = "This is the first file in the supercool file place";
+	
 	/** Constructor
 	 * @param port The port where the server
 	 *    will listen for requests
@@ -45,28 +47,34 @@ public class SecureAdditionServer {
             SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
             SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket( port );
             sss.setEnabledCipherSuites( sss.getSupportedCipherSuites() );
-            sss.setNeedClientAuth(true);
+            sss.setNeedClientAuth(true); //this is added in order to force the server to ask client for authentication
             System.out.println("\n>>>> SecureAdditionServer: active ");
             SSLSocket incoming = (SSLSocket)sss.accept();
 
-      BufferedReader in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
+            BufferedReader in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
 			PrintWriter out = new PrintWriter( incoming.getOutputStream(), true );			
 			
-			String str;
-			while ( !(str = in.readLine()).equals("") ) {
-				double result = 0;
-				StringTokenizer st = new StringTokenizer( str );
-				try {
-					while( st.hasMoreTokens() ) {
-						Double d = new Double( st.nextToken() );
-						result += d.doubleValue();
-					}
-					out.println( "The result is " + result );
-				}
-				catch( NumberFormatException nfe ) {
-					out.println( "Sorry, your list contains an invalid number" );
-				}
+			int option = Integer.parseInt(in.readLine());
+			String filename = in.readLine();
+			
+			switch(option) {
+				case 1:
+					out.println(downloadFile(filename));
+					break;
+				case 2:
+					uploadFile(filename);
+					break;
+				case 3:
+					deleteFile(filename);
+					break;
+				default:
+					incoming.close();
 			}
+			
+			
+			//out.println(option);
+			//out.println(filename);
+			
 			incoming.close();
 		}
 		catch( Exception x ) {
@@ -75,6 +83,23 @@ public class SecureAdditionServer {
 		}
 	}
 	
+	/** Functions for handeling the different client options
+	 * 
+	 */
+	public String downloadFile(String fileName) {
+		//out.println(fileName);
+		System.out.println("Downloading...");
+		return file1;
+		
+	}
+	public void uploadFile(String fileName) {
+		//push file to the files
+		System.out.println("Uploading...");
+	}
+	public void deleteFile(String fileName) {
+		//pop file from files
+		System.out.println("Deleting...");
+	}
 	
 	/** The test method for the class
 	 * @param args[0] Optional port number in place of
