@@ -48,7 +48,7 @@ public class SecureAdditionClient {
 
 			int op;
 			
-			do {
+			//do {
 				displayMenu();
 				
 				BufferedReader socketIn;
@@ -74,8 +74,10 @@ public class SecureAdditionClient {
 					    	printWriterOut.println(line1); // behšver spara alt. skicka till clienten..
 					        line1 = socketIn.readLine();
 					    }
+					    System.out.println("finished reading ");
 					    fileWriterOut.close();
 					    printWriterOut.close();
+					    
 					    break;
 					case 2:
 						// upload
@@ -98,7 +100,7 @@ public class SecureAdditionClient {
 						op  = 4; // just to quit everything 
 						break;
 				}
-			}while(op !=4);		    
+			//}while(op !=4);		    
 		}
 		catch( Exception x ) {
 			System.out.println( "Exception: " + x );

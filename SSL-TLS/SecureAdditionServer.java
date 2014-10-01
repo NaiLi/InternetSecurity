@@ -57,7 +57,7 @@ public class SecureAdditionServer {
             in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
 			out = new PrintWriter( incoming.getOutputStream(), true );			
 			
-			do{
+			//do{
 				// reads option and filename sent from client
 				System.out.println("Reads option");
 				int option = Integer.parseInt(in.readLine());
@@ -83,7 +83,7 @@ public class SecureAdditionServer {
 						incoming.close();
 						break;
 				}
-			} while(incoming.isConnected());
+			//} while(incoming.isConnected());
 		}
 		catch( Exception x ) {
 			System.out.println( "Exception: " + x );
