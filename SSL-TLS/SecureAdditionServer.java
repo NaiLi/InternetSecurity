@@ -18,6 +18,9 @@ public class SecureAdditionServer {
 	static final String ALIASPASSWD = "linuss";
 	
 	private String file1 = "This is the first file in the supercool file place";
+	PrintWriter out; 
+	BufferedReader in;
+	
 	
 	/** Constructor
 	 * @param port The port where the server
@@ -28,7 +31,7 @@ public class SecureAdditionServer {
 	}
 	
 	/** The method that does the work for the class */
-	public void run() {
+	public void run() throws IOException {
 		try {
 			KeyStore ks = KeyStore.getInstance( "JCEKS" );
 			ks.load( new FileInputStream( KEYSTORE ), STOREPASSWD.toCharArray() );
@@ -51,61 +54,98 @@ public class SecureAdditionServer {
             System.out.println("\n>>>> SecureAdditionServer: active ");
             SSLSocket incoming = (SSLSocket)sss.accept();
 
-            BufferedReader in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
-			PrintWriter out = new PrintWriter( incoming.getOutputStream(), true );			
+            in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
+			out = new PrintWriter( incoming.getOutputStream(), true );			
 			
-			int option = Integer.parseInt(in.readLine());
-			String filename = in.readLine();
-			
-			switch(option) {
-				case 1:
-					out.println(downloadFile(filename));
-					break;
-				case 2:
-					uploadFile(filename);
-					break;
-				case 3:
-					deleteFile(filename);
-					break;
-				default:
-					incoming.close();
-			}
-			
-			
-			//out.println(option);
-			//out.println(filename);
-			
-			incoming.close();
+			do{
+				// reads option and filename sent from client
+				System.out.println("Reads option");
+				int option = Integer.parseInt(in.readLine());
+				String filename = in.readLine();
+				
+				// handle options on the server side
+				switch(option) {
+					case 1:
+						downloadFile(filename);
+						break;
+					case 2:
+						uploadFile(filename);
+						break;
+					case 3:
+						deleteFile(filename);
+						break;
+					case 4: 
+						System.out.println("Closing down");
+						incoming.close();
+						break;
+					default:
+						System.out.println("Wrong option");
+						incoming.close();
+						break;
+				}
+			} while(incoming.isConnected());
 		}
 		catch( Exception x ) {
-			System.out.println( x );
+			System.out.println( "Exception: " + x );
 			x.printStackTrace();
 		}
+		
+		System.out.println("End of function run..");
 	}
 	
 	/** Functions for handeling the different client options
 	 * 
 	 */
-	public String downloadFile(String fileName) {
-		//out.println(fileName);
+	public void downloadFile(String fileName) throws IOException{
 		System.out.println("Downloading...");
-		return file1;
+		readFromFile("server/"+fileName);
 		
 	}
-	public void uploadFile(String fileName) {
+	public void uploadFile(String fileName) throws IOException {
 		//push file to the files
 		System.out.println("Uploading...");
+		FileWriter fileWriterOut = new FileWriter("server/"+fileName);
+		PrintWriter printWriterOut = new PrintWriter(new BufferedWriter(fileWriterOut), true);
+		
+		String line = in.readLine();
+	    while (line!=null) {
+	    	printWriterOut.println(line); // behšver spara alt. skicka till clienten..
+	    	//System.out.println(line);
+	        line = in.readLine();
+	    }
+	    fileWriterOut.close();
+	    printWriterOut.close();
+	    System.out.println("Uploading finished");
 	}
 	public void deleteFile(String fileName) {
 		//pop file from files
 		System.out.println("Deleting...");
+		File file = new File("server/"+fileName);
+		if(!file.delete()){
+			System.out.println("Deleting failed.");
+		}
+	}
+	
+	private void readFromFile(String fileName) throws IOException{
+
+		FileReader in = new FileReader(fileName);
+		BufferedReader br = new BufferedReader( in );
+		String line = br.readLine();
+	    while (line!=null) {
+	        out.println(line); // behšver spara alt. skicka till clienten..
+	        System.out.println(line);
+	        line = br.readLine();
+	    }
+	    in.close();
+	    br.close();
+	    
 	}
 	
 	/** The test method for the class
 	 * @param args[0] Optional port number in place of
 	 *        the default
 	 */
-	public static void main( String[] args ) {
+	public static void main( String[] args ) throws IOException {
 		int port = DEFAULT_PORT;
 		if (args.length > 0 ) {
 			port = Integer.parseInt( args[0] );

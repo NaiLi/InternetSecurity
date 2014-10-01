@@ -46,29 +46,70 @@ public class SecureAdditionClient {
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
-			displayMenu();
+			int op;
 			
-			BufferedReader socketIn;
-			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
-			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
-			
-			String numbers = option; //"1.2 3.4 5.6";
-			System.out.println( ">>>> Sending the numbers " + numbers+ " to SecureAdditionServer" );
-			socketOut.println(option); //+ filename);
-			socketOut.println(filename);
-			System.out.println( socketIn.readLine() );
-			//System.out.println( socketIn.readLine() );
-
-			socketOut.println ( "" );
+			do {
+				displayMenu();
+				
+				BufferedReader socketIn;
+				socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
+				PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
+				
+				// sending option and filename to server
+				socketOut.println(option);
+				socketOut.println(filename);
+				
+				op = Integer.parseInt(option); 
+				
+				// handle options on the client side
+				switch(op) {
+					case 1:
+						// read everything from the server
+						//TODO change the out name to a version of the first
+						FileWriter fileWriterOut = new FileWriter(filename);
+						PrintWriter printWriterOut = new PrintWriter(new BufferedWriter(fileWriterOut), true);
+						
+						String line1 = socketIn.readLine();
+					    while (line1!=null) {
+					    	printWriterOut.println(line1); // behšver spara alt. skicka till clienten..
+					        line1 = socketIn.readLine();
+					    }
+					    fileWriterOut.close();
+					    printWriterOut.close();
+					    break;
+					case 2:
+						// upload
+						FileReader fileReaderIn = new FileReader(filename);
+						BufferedReader br = new BufferedReader( fileReaderIn );
+						String line2 = br.readLine();
+					    while (line2!=null) {
+					        socketOut.println(line2); // sending text from fileName to server
+					        line2 = br.readLine();
+					    }
+					    fileReaderIn.close();
+						break;
+					case 3: 
+						// delete
+						break;
+					case 4:
+						// quit program
+						break;
+					default:
+						op  = 4; // just to quit everything 
+						break;
+				}
+			}while(op !=4);		    
 		}
 		catch( Exception x ) {
-			System.out.println( x );
+			System.out.println( "Exception: " + x );
 			x.printStackTrace();
 		}
 	}
 	
+	/* Function to display menu to user
+	 */
 	private void displayMenu() throws IOException {
-		
+		System.out.println(" ");
 		System.out.println("Select an option:");
 		System.out.println("1. Download file");
 		System.out.println("2. Upload file");
@@ -76,11 +117,14 @@ public class SecureAdditionClient {
 		System.out.println("4. Quit");
 		System.out.println("Enter option: ");
 		
-		BufferedReader optionIn = new BufferedReader(new InputStreamReader(System.in));
+		InputStreamReader input = new InputStreamReader(System.in);
+		BufferedReader optionIn = new BufferedReader(input);
 		option = optionIn.readLine();
 		System.out.println("Enter filename");
 		filename = optionIn.readLine();
-		System.out.println(option + " " + filename);
+		
+		//input.close();
+		//optionIn.close();
 	}
 	
 	// The test method for the class @param args Optional port number and host name
