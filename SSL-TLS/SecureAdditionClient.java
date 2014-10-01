@@ -48,7 +48,7 @@ public class SecureAdditionClient {
 
 			int op;
 			
-			//do {
+			do {
 				displayMenu();
 				
 				BufferedReader socketIn;
@@ -65,13 +65,14 @@ public class SecureAdditionClient {
 				switch(op) {
 					case 1:
 						// read everything from the server
-						//TODO change the out name to a version of the first
 						FileWriter fileWriterOut = new FileWriter(filename);
 						PrintWriter printWriterOut = new PrintWriter(new BufferedWriter(fileWriterOut), true);
-						
+
+						int lenghtFile = Integer.parseInt(socketIn.readLine()); // gets the filelength so we know when to stop reading
+
 						String line1 = socketIn.readLine();
-					    while (line1!=null) {
-					    	printWriterOut.println(line1); // behšver spara alt. skicka till clienten..
+					    while (new File(filename).length() < lenghtFile) { // to stop when end of file
+					    	printWriterOut.println(line1); 
 					        line1 = socketIn.readLine();
 					    }
 					    System.out.println("finished reading ");
@@ -83,6 +84,9 @@ public class SecureAdditionClient {
 						// upload
 						FileReader fileReaderIn = new FileReader(filename);
 						BufferedReader br = new BufferedReader( fileReaderIn );
+
+						socketOut.println(new File(filename).length()); // sends the length of the file
+
 						String line2 = br.readLine();
 					    while (line2!=null) {
 					        socketOut.println(line2); // sending text from fileName to server
@@ -100,7 +104,7 @@ public class SecureAdditionClient {
 						op  = 4; // just to quit everything 
 						break;
 				}
-			//}while(op !=4);		    
+			}while(op !=4);		    
 		}
 		catch( Exception x ) {
 			System.out.println( "Exception: " + x );

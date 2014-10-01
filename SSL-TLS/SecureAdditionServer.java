@@ -17,7 +17,6 @@ public class SecureAdditionServer {
 	static final String STOREPASSWD = "linuss";
 	static final String ALIASPASSWD = "linuss";
 	
-	private String file1 = "This is the first file in the supercool file place";
 	PrintWriter out; 
 	BufferedReader in;
 	
@@ -69,7 +68,8 @@ public class SecureAdditionServer {
 						downloadFile(filename);
 						break;
 					case 2:
-						uploadFile(filename);
+						int lenghtFile = Integer.parseInt(in.readLine()); // gets the filelength so we know when to stop reading
+						uploadFile(filename, lenghtFile);
 						break;
 					case 3:
 						deleteFile(filename);
@@ -98,20 +98,22 @@ public class SecureAdditionServer {
 	 */
 	public void downloadFile(String fileName) throws IOException{
 		System.out.println("Downloading...");
+		out.println(new File("server/"+fileName).length()); // send the length of the file we are sending to the client
 		readFromFile("server/"+fileName);
 		
 	}
-	public void uploadFile(String fileName) throws IOException {
+	public void uploadFile(String fileName, int fileLength) throws IOException {
 		//push file to the files
 		System.out.println("Uploading...");
 		FileWriter fileWriterOut = new FileWriter("server/"+fileName);
 		PrintWriter printWriterOut = new PrintWriter(new BufferedWriter(fileWriterOut), true);
 		
 		String line = in.readLine();
-	    while (line!=null) {
+
+	    while (new File("server/"+fileName).length() < fileLength) {
 	    	printWriterOut.println(line); // behšver spara alt. skicka till clienten..
-	    	//System.out.println(line);
 	        line = in.readLine();
+
 	    }
 	    fileWriterOut.close();
 	    printWriterOut.close();
@@ -133,7 +135,6 @@ public class SecureAdditionServer {
 		String line = br.readLine();
 	    while (line!=null) {
 	        out.println(line); // behšver spara alt. skicka till clienten..
-	        System.out.println(line);
 	        line = br.readLine();
 	    }
 	    in.close();
